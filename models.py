@@ -1,6 +1,8 @@
 from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
 from sqlalchemy.orm import relationship, declarative_base
 
+DATABASE_URL = "sqlite:///database.db"  
+
 Base = declarative_base()
 
 class Game(Base):
@@ -13,7 +15,7 @@ class Game(Base):
     max_turn_time = Column(Integer, nullable=False)
     turn_number = Column(Integer, default=0)
 
-    players = relationship("GamePlayer", back_populates="Game")
+    players = relationship("GamePlayer", back_populates="game")
 
 class Player(Base):
     __tablename__ = "Player"
@@ -21,7 +23,7 @@ class Player(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String, nullable=False)
 
-    Games = relationship("GamePlayer", back_populates="Player")
+    games = relationship("GamePlayer", back_populates="player")
 
 class GamePlayer(Base):
     __tablename__ = "Game_player"
@@ -31,5 +33,5 @@ class GamePlayer(Base):
     is_alive = Column(Boolean, default=True, nullable=False)
     role = Column(Boolean, nullable=False)
 
-    Game = relationship("Game", back_populates="players")
-    player = relationship("Player", back_populates="Games")
+    game = relationship("Game", back_populates="players")
+    player = relationship("Player", back_populates="games")
