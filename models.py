@@ -12,7 +12,7 @@ class Game(Base):
     max_nb_turn = Column(Integer, nullable=False)
     max_turn_time = Column(Integer, nullable=False)
     turn_number = Column(Integer, default=0)
-    is_invite_open = Column(Boolean, default=True, nullable=False)
+    state = Column(Integer, default=0, nullable=False)
 
     players = relationship("GamePlayer", back_populates="Game")
 
