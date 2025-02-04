@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Boolean, ForeignKey
+from sqlalchemy import Column, Integer, String, Boolean, ForeignKey, create_engine
 from sqlalchemy.orm import relationship, declarative_base
 
 DATABASE_URL = "sqlite:///database.db"  
@@ -36,3 +36,6 @@ class GamePlayer(Base):
 
     game = relationship("Game", back_populates="players")
     player = relationship("Player", back_populates="games")
+
+engine = create_engine(DATABASE_URL, echo=True)
+Base.metadata.create_all(engine)
