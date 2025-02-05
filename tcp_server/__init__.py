@@ -1,6 +1,9 @@
 import socketserver
 import json
 
+from db_methods.requests import connect_player
+
+
 class MyTCPHandler(socketserver.BaseRequestHandler):
     def handle(self):
         data = self.request.recv(1024)
@@ -8,10 +11,35 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             return
         try:
             request = json.loads(data.decode('utf-8'))
-            name = request.get('name', 'World')
-            response = {'message': f'Hello world {name}'}
+            action = request.get('action')
+            if action == 'player_join':
+                username = request.get('username')
+                print(f"Player joined: {username}")
+                connect_player(username)
+                response = {
+                    'status': 'success',
+                    'code': 200,
+                    'message': f'Player {username} joined successfully'
+                }
+
+            else:
+                response = {
+                    'status': 'error',
+                    'code': 404,
+                    'message': 'Invalid action'
+                }
         except json.JSONDecodeError:
-            response = {'error': 'Invalid JSON'}
+            response = {
+                'status': 'error',
+                'code': 400,
+                'message': 'Invalid JSON'
+            }
+        except Exception as e:
+            response = {
+                'status': 'error',
+                'code': 500,
+                'message': str(e)
+            }
         self.request.sendall(json.dumps(response).encode('utf-8'))
 
 if __name__ == "__main__":
