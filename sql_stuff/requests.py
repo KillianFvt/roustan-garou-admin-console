@@ -49,9 +49,9 @@ def add_player(player_name):
     return new_player.id
 
 # quand un joueur se connecte
-def connect_player(game_id, player_id, role):
+def connect_player(game_id, player_id, is_wolf):
     session = SessionLocal()
-    game_player = GamePlayer(id_game=game_id, id_player=player_id, role=role)
+    game_player = GamePlayer(id_game=game_id, id_player=player_id, is_wolf=is_wolf)
     session.add(game_player)
     session.commit()
     session.close()
