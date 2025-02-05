@@ -1,10 +1,10 @@
 from sqlalchemy.orm import sessionmaker
-from models import Game, Player, GamePlayer, engine
+from db_methods.models import Game, Player, GamePlayer, engine
 
 SessionLocal = sessionmaker(bind=engine)
 
-# une game en cours d'initialisation a un état de 0
-def initialize_game(nb_player, map_size, max_nb_turn, max_turn_time):
+# a game that is being initialized has a state of 0
+def initialize_game(nb_player: int, map_size: str, max_nb_turn: int, max_turn_time: int) -> int:
     session = SessionLocal()
     new_game = Game(
         nb_player=nb_player,
@@ -19,7 +19,8 @@ def initialize_game(nb_player, map_size, max_nb_turn, max_turn_time):
     session.close()
     return new_game.id
 
-# démarrer la game revient à mettre son état à 1
+
+# start the game (game started => state = 1)
 def start_game(game_id):
     session = SessionLocal()
     game = session.query(Game).filter(Game.id == game_id).first()
@@ -28,18 +29,18 @@ def start_game(game_id):
         session.commit()
     session.close()
 
-# après la win (game terminée => state = 2)
-def end_game(game_id):
+# after the game is over (game ended => state = 2)
+def end_game():
     session = SessionLocal()
-    game = session.query(Game).filter(Game.id == game_id).first()
+
+    game = session.query(Game).order_by(Game.id.desc()).first()
     if game:
         game.state = 2
         session.commit()
     session.close()
 
-
-# quand le joueur créé le compte
-def add_player(player_name):
+# to add a player to the db
+def add_player(player_name: str) -> int:
     session = SessionLocal()
     new_player = Player(name=player_name)
     session.add(new_player)
@@ -48,10 +49,21 @@ def add_player(player_name):
     session.close()
     return new_player.id
 
-# quand un joueur se connecte
-def connect_player(game_id, player_id, is_wolf):
+# when a player connects to a game
+def connect_player(player_name: str) -> None:
     session = SessionLocal()
-    game_player = GamePlayer(id_game=game_id, id_player=player_id, is_wolf=is_wolf)
+
+    # if player is not in db then add him
+    player = session.query(Player).filter(Player.name == player_name).first()
+    if not player:
+        player_id = add_player(player_name)
+    else :
+        player_id = player.id
+
+    # get the last game id
+    game_id = session.query(Game).order_by(Game.id.desc()).first().id
+
+    game_player = GamePlayer(id_game=game_id, id_player=player_id, is_wolf=False)
     session.add(game_player)
     session.commit()
     session.close()

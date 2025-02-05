@@ -10,7 +10,7 @@ class Game(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     nb_player = Column(Integer, nullable=False)
-    map_size = Column(String, nullable=False)
+    map_size = Column(String, nullable=False) # format: "[height]x[width]" ex: "5x6"
     max_nb_turn = Column(Integer, nullable=False)
     max_turn_time = Column(Integer, nullable=False)
     turn_number = Column(Integer, default=0)
@@ -37,5 +37,5 @@ class GamePlayer(Base):
     game = relationship("Game", back_populates="players")
     player = relationship("Player", back_populates="games")
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 Base.metadata.create_all(engine)
