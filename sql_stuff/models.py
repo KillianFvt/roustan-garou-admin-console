@@ -32,7 +32,7 @@ class GamePlayer(Base):
     id_game = Column(Integer, ForeignKey("Game.id"), primary_key=True)
     id_player = Column(Integer, ForeignKey("Player.id"), primary_key=True)
     is_alive = Column(Boolean, default=True, nullable=False)
-    role = Column(Boolean, nullable=False)
+    is_wolf = Column(Boolean, default=False, nullable=False)
 
     game = relationship("Game", back_populates="players")
     player = relationship("Player", back_populates="games")
