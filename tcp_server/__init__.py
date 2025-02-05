@@ -1,6 +1,7 @@
 import socketserver
 import json
 
+from db_methods.db_exceptions import MaxPlayersReachedException
 from db_methods.requests import connect_player
 
 
@@ -15,12 +16,24 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
             if action == 'player_join':
                 username = request.get('username')
                 print(f"Player joined: {username}")
-                connect_player(username)
-                response = {
-                    'status': 'success',
-                    'code': 200,
-                    'message': f'Player {username} joined successfully'
-                }
+
+                try :
+                    connect_player(username)
+
+                    response = {
+                        'status': 'success',
+                        'code': 200,
+                        'message': f'Player {username} joined successfully'
+                    }
+
+                # if the game has reached the maximum number of players
+                except MaxPlayersReachedException as e:
+                    # return an error message
+                    response = {
+                        'status': 'error',
+                        'code': 401,
+                        'message': str(e)
+                    }
 
             else:
                 response = {
@@ -28,6 +41,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
                     'code': 404,
                     'message': 'Invalid action'
                 }
+
         except json.JSONDecodeError:
             response = {
                 'status': 'error',
