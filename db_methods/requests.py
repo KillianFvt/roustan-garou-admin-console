@@ -20,22 +20,32 @@ def initialize_game(nb_player: int, map_size: str, max_nb_turn: int, max_turn_ti
     return new_game.id
 
 
-# start the game (game started => state = 1)
-def start_game(game_id):
+# open the game (game open => state = 1)
+def open_game():
     session = SessionLocal()
-    game = session.query(Game).filter(Game.id == game_id).first()
+    game = session.query(Game).order_by(Game.id.desc()).first()
     if game:
         game.state = 1
         session.commit()
     session.close()
 
-# after the game is over (game ended => state = 2)
-def end_game():
+# start the game (game started => state = 2)
+def start_game():
     session = SessionLocal()
 
     game = session.query(Game).order_by(Game.id.desc()).first()
     if game:
         game.state = 2
+        session.commit()
+    session.close()
+
+# after the game is over (game ended => state = 3)
+def end_game():
+    session = SessionLocal()
+
+    game = session.query(Game).order_by(Game.id.desc()).first()
+    if game:
+        game.state = 3
         session.commit()
     session.close()
 
