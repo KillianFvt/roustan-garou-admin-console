@@ -1,4 +1,6 @@
 from sqlalchemy.orm import sessionmaker
+
+from db_methods.db_exceptions import MaxPlayersReachedException
 from db_methods.models import Game, Player, GamePlayer, engine
 
 SessionLocal = sessionmaker(bind=engine)
@@ -112,13 +114,19 @@ def connect_player(player_name: str) -> None:
     player = session.query(Player).filter(Player.name == player_name).first()
     if not player:
         player_id = add_player(player_name)
-    else :
+    else:
         player_id = player.id
 
-    # get the last game id
-    game_id = session.query(Game).order_by(Game.id.desc()).first().id
+    # get the last game
+    game = session.query(Game).order_by(Game.id.desc()).first()
 
-    game_player = GamePlayer(id_game=game_id, id_player=player_id, is_wolf=False)
+    # check if the game has reached the maximum number of players
+    current_player_amt = session.query(GamePlayer).filter(GamePlayer.id_game == game.id).count()
+    if current_player_amt >= game.nb_player:
+        session.close()
+        raise MaxPlayersReachedException()
+
+    game_player = GamePlayer(id_game=game.id, id_player=player_id, is_wolf=False)
     session.add(game_player)
     session.commit()
     session.close()
